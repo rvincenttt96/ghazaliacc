@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * RESTful API Controller in PHP
  * Ghazal Language Academy Management System
@@ -6,21 +6,21 @@
 
 require_once __DIR__ . '/config.php';
 
-// پشتیبانی از پاسخ پیش‌فرض OPTIONS
+// Ù¾Ø´ØªÛŒØ¨Ø§Ù†ÛŒ Ø§Ø² Ù¾Ø§Ø³Ø® Ù¾ÛŒØ´â€ŒÙØ±Ø¶ OPTIONS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     sendJson(['status' => 'ok']);
 }
 
 $pdo = getDbConnection();
 
-// تعیین اکشن بر اساس کوئری پارامتر action یا مسیر URL
+// ØªØ¹ÛŒÛŒÙ† Ø§Ú©Ø´Ù† Ø¨Ø± Ø§Ø³Ø§Ø³ Ú©ÙˆØ¦Ø±ÛŒ Ù¾Ø§Ø±Ø§Ù…ØªØ± action ÛŒØ§ Ù…Ø³ÛŒØ± URL
 $action = $_GET['action'] ?? '';
 $method = $_SERVER['REQUEST_METHOD'];
 
-// دریافت پارامتر ID در صورت وجود
+// Ø¯Ø±ÛŒØ§ÙØª Ù¾Ø§Ø±Ø§Ù…ØªØ± ID Ø¯Ø± ØµÙˆØ±Øª ÙˆØ¬ÙˆØ¯
 $id = $_GET['id'] ?? null;
 
-// توابع کمکی تبدیل ID برای هماهنگی فرانت‌اند
+// ØªÙˆØ§Ø¨Ø¹ Ú©Ù…Ú©ÛŒ ØªØ¨Ø¯ÛŒÙ„ ID Ø¨Ø±Ø§ÛŒ Ù‡Ù…Ø§Ù‡Ù†Ú¯ÛŒ ÙØ±Ø§Ù†Øªâ€ŒØ§Ù†Ø¯
 function mapId($rows) {
     return array_map(function($row) {
         if (isset($row['id'])) {
@@ -32,17 +32,17 @@ function mapId($rows) {
 }
 
 // -------------------------------------------------------------
-// اکشن‌ها
+// Ø§Ú©Ø´Ù†â€ŒÙ‡Ø§
 // -------------------------------------------------------------
 
 switch ($action) {
 
-    // 1. بررسي سلامت سرور
+    // 1. Ø¨Ø±Ø±Ø³ÙŠ Ø³Ù„Ø§Ù…Øª Ø³Ø±ÙˆØ±
     case 'health':
         sendJson(['status' => 'ok', 'database' => 'mysql', 'php_version' => PHP_VERSION]);
         break;
 
-    // 2. احراز هویت و لاگین
+    // 2. Ø§Ø­Ø±Ø§Ø² Ù‡ÙˆÛŒØª Ùˆ Ù„Ø§Ú¯ÛŒÙ†
     case 'login':
         if ($method !== 'POST') sendJson(['error' => 'Method Not Allowed'], 405);
         $input = getJsonInput();
@@ -56,11 +56,11 @@ switch ($action) {
         if ($user) {
             sendJson(['success' => true, 'user' => $user]);
         } else {
-            sendJson(['success' => false, 'message' => 'نام کاربری یا رمز عبور اشتباه است'], 401);
+            sendJson(['success' => false, 'message' => 'Ù†Ø§Ù… Ú©Ø§Ø±Ø¨Ø±ÛŒ ÛŒØ§ Ø±Ù…Ø² Ø¹Ø¨ÙˆØ± Ø§Ø´ØªØ¨Ø§Ù‡ Ø§Ø³Øª'], 401);
         }
         break;
 
-    // 3. مدیریت ترم‌ها
+    // 3. Ù…Ø¯ÛŒØ±ÛŒØª ØªØ±Ù…â€ŒÙ‡Ø§
     case 'terms':
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM terms ORDER BY createdAt DESC");
@@ -88,23 +88,23 @@ switch ($action) {
         } elseif ($method === 'DELETE') {
             if (!$id) sendJson(['error' => 'ID required'], 400);
 
-            // بررسی جابجایی یا استفاده ترم قبل حذف
+            // Ø¨Ø±Ø±Ø³ÛŒ Ø¬Ø§Ø¨Ø¬Ø§ÛŒÛŒ ÛŒØ§ Ø§Ø³ØªÙØ§Ø¯Ù‡ ØªØ±Ù… Ù‚Ø¨Ù„ Ø­Ø°Ù
             $sCheck = $pdo->prepare("SELECT COUNT(*) as cnt FROM students WHERE termId = ?");
             $sCheck->execute([$id]);
             if ($sCheck->fetch()['cnt'] > 0) {
-                sendJson(['error' => 'امکان حذف ترم دارای زبان‌آموز وجود ندارد'], 400);
+                sendJson(['error' => 'Ø§Ù…Ú©Ø§Ù† Ø­Ø°Ù ØªØ±Ù… Ø¯Ø§Ø±Ø§ÛŒ Ø²Ø¨Ø§Ù†â€ŒØ¢Ù…ÙˆØ² ÙˆØ¬ÙˆØ¯ Ù†Ø¯Ø§Ø±Ø¯'], 400);
             }
 
             $salCheck = $pdo->prepare("SELECT COUNT(*) as cnt FROM salaries WHERE termId = ?");
             $salCheck->execute([$id]);
             if ($salCheck->fetch()['cnt'] > 0) {
-                sendJson(['error' => 'امکان حذف ترم دارای سوابق حقوقی وجود ندارد'], 400);
+                sendJson(['error' => 'Ø§Ù…Ú©Ø§Ù† Ø­Ø°Ù ØªØ±Ù… Ø¯Ø§Ø±Ø§ÛŒ Ø³ÙˆØ§Ø¨Ù‚ Ø­Ù‚ÙˆÙ‚ÛŒ ÙˆØ¬ÙˆØ¯ Ù†Ø¯Ø§Ø±Ø¯'], 400);
             }
 
             $expCheck = $pdo->prepare("SELECT COUNT(*) as cnt FROM expenses WHERE termId = ?");
             $expCheck->execute([$id]);
             if ($expCheck->fetch()['cnt'] > 0) {
-                sendJson(['error' => 'امکان حذف ترم دارای هزینه‌ها وجود ندارد'], 400);
+                sendJson(['error' => 'Ø§Ù…Ú©Ø§Ù† Ø­Ø°Ù ØªØ±Ù… Ø¯Ø§Ø±Ø§ÛŒ Ù‡Ø²ÛŒÙ†Ù‡â€ŒÙ‡Ø§ ÙˆØ¬ÙˆØ¯ Ù†Ø¯Ø§Ø±Ø¯'], 400);
             }
 
             $stmt = $pdo->prepare("DELETE FROM terms WHERE id = ?");
@@ -113,7 +113,7 @@ switch ($action) {
         }
         break;
 
-    // 4. مدیریت زبان‌آموزان
+    // 4. Ù…Ø¯ÛŒØ±ÛŒØª Ø²Ø¨Ø§Ù†â€ŒØ¢Ù…ÙˆØ²Ø§Ù†
     case 'students':
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM students ORDER BY createdAt DESC");
@@ -126,7 +126,7 @@ switch ($action) {
                 $input['lastName'] ?? '',
                 $input['level'] ?? '',
                 $input['phone'] ?? null,
-                $input['classType'] ?? 'حضوری',
+                $input['classType'] ?? 'Ø­Ø¶ÙˆØ±ÛŒ',
                 (int)($input['totalPayable'] ?? 0),
                 (int)($input['amountPaid'] ?? 0),
                 (int)($input['debt'] ?? 0),
@@ -154,7 +154,7 @@ switch ($action) {
             $student = $stmtSelect->fetch();
             if (!$student) sendJson(['error' => 'Student not found'], 404);
 
-            // اگر شهریه کل جدیدی از سمت کاربر آمد از آن استفاده کن، در غیر اینصورت شهریه قبلی
+            // Ø§Ú¯Ø± Ø´Ù‡Ø±ÛŒÙ‡ Ú©Ù„ Ø¬Ø¯ÛŒØ¯ÛŒ Ø§Ø² Ø³Ù…Øª Ú©Ø§Ø±Ø¨Ø± Ø¢Ù…Ø¯ Ø§Ø² Ø¢Ù† Ø§Ø³ØªÙØ§Ø¯Ù‡ Ú©Ù†ØŒ Ø¯Ø± ØºÛŒØ± Ø§ÛŒÙ†ØµÙˆØ±Øª Ø´Ù‡Ø±ÛŒÙ‡ Ù‚Ø¨Ù„ÛŒ
             $totalPayable = isset($input['totalPayable']) ? (int)$input['totalPayable'] : (int)$student['totalPayable'];
             $amountPaid = (int)($input['amountPaid'] ?? 0);
             $debt = $totalPayable - $amountPaid;
@@ -200,7 +200,7 @@ switch ($action) {
         }
         break;
 
-    // 5. افزودن دسته‌جمعی زبان‌آموزان
+    // 5. Ø§ÙØ²ÙˆØ¯Ù† Ø¯Ø³ØªÙ‡â€ŒØ¬Ù…Ø¹ÛŒ Ø²Ø¨Ø§Ù†â€ŒØ¢Ù…ÙˆØ²Ø§Ù†
     case 'students_batch':
         if ($method !== 'POST') sendJson(['error' => 'Method Not Allowed'], 405);
         $students = getJsonInput();
@@ -215,7 +215,7 @@ switch ($action) {
                     $s['lastName'] ?? '',
                     $s['level'] ?? '',
                     $s['phone'] ?? null,
-                    $s['classType'] ?? 'حضوری',
+                    $s['classType'] ?? 'Ø­Ø¶ÙˆØ±ÛŒ',
                     (int)($s['totalPayable'] ?? 0),
                     (int)($s['amountPaid'] ?? 0),
                     (int)($s['debt'] ?? 0),
@@ -232,7 +232,7 @@ switch ($action) {
         }
         break;
 
-    // 6. تغییر وضعیت تسویه زبان‌آموز
+    // 6. ØªØºÛŒÛŒØ± ÙˆØ¶Ø¹ÛŒØª ØªØ³ÙˆÛŒÙ‡ Ø²Ø¨Ø§Ù†â€ŒØ¢Ù…ÙˆØ²
     case 'students_status':
         if ($method !== 'PATCH' || !$id) sendJson(['error' => 'Invalid Request'], 400);
         $input = getJsonInput();
@@ -243,7 +243,7 @@ switch ($action) {
         sendJson(['success' => true]);
         break;
 
-    // 7. حقوق و دستمزد اساتید
+    // 7. Ø­Ù‚ÙˆÙ‚ Ùˆ Ø¯Ø³ØªÙ…Ø²Ø¯ Ø§Ø³Ø§ØªÛŒØ¯
     case 'salaries':
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM salaries ORDER BY createdAt DESC");
@@ -285,7 +285,7 @@ switch ($action) {
         }
         break;
 
-    // 8. هزینه‌های جاری
+    // 8. Ù‡Ø²ÛŒÙ†Ù‡â€ŒÙ‡Ø§ÛŒ Ø¬Ø§Ø±ÛŒ
     case 'expenses':
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM expenses ORDER BY createdAt DESC");
@@ -296,7 +296,7 @@ switch ($action) {
             $stmt->execute([
                 $input['title'] ?? '',
                 (int)($input['amount'] ?? 0),
-                $input['category'] ?? 'عمومی',
+                $input['category'] ?? 'Ø¹Ù…ÙˆÙ…ÛŒ',
                 $input['date'] ?? '',
                 $input['termId'] ?? '',
                 $input['receiptUrl'] ?? null
@@ -327,7 +327,7 @@ switch ($action) {
         }
         break;
 
-    // 9. سطوح تحصیلی
+    // 9. Ø³Ø·ÙˆØ­ ØªØ­ØµÛŒÙ„ÛŒ
     case 'levels':
         if ($method === 'GET') {
             $stmt = $pdo->query("SELECT * FROM levels");
@@ -351,10 +351,10 @@ switch ($action) {
         }
         break;
 
-    // 10. رسیدهای چاپی زبان‌آموزان
+    // 10. Ø±Ø³ÛŒØ¯Ù‡Ø§ÛŒ Ú†Ø§Ù¾ÛŒ Ø²Ø¨Ø§Ù†â€ŒØ¢Ù…ÙˆØ²Ø§Ù†
     case 'receipts':
         if ($method === 'GET') {
-            // استفاده از $id که توسط URL Rewrite تولید شده است
+            // Ø§Ø³ØªÙØ§Ø¯Ù‡ Ø§Ø² $id Ú©Ù‡ ØªÙˆØ³Ø· URL Rewrite ØªÙˆÙ„ÛŒØ¯ Ø´Ø¯Ù‡ Ø§Ø³Øª
             $studentId = $_GET['studentId'] ?? $id; 
             
             if ($studentId) {
@@ -376,8 +376,36 @@ switch ($action) {
             sendJson(['success' => true, 'id' => (string)$pdo->lastInsertId()]);
         }
         break;
+    // 7.5 افزودن دسته‌جمعی حقوق و دستمزد (از طریق اکسل)
+    case 'salaries_batch':
+        if ($method !== 'POST') sendJson(['error' => 'Method Not Allowed'], 405);
+        $salariesInput = getJsonInput();
+        if (!is_array($salariesInput)) sendJson(['error' => 'Expected array'], 400);
+
+        $pdo->beginTransaction();
+        try {
+            $stmt = $pdo->prepare("INSERT INTO salaries (teacherName, role, amount, month, status, termId, receiptUrl) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            foreach ($salariesInput as $sal) {
+                $stmt->execute([
+                    $sal['teacherName'] ?? '',
+                    'استاد', // Role is hardcoded to 'استاد'
+                    (int)($sal['amount'] ?? 0),
+                    $sal['month'] ?? '',
+                    $sal['status'] ?? 'unpaid',
+                    $sal['termId'] ?? '',
+                    $sal['receiptUrl'] ?? null
+                ]);
+            }
+            $pdo->commit();
+            sendJson(['success' => true, 'count' => count($salariesInput)]);
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            sendJson(['error' => $e->getMessage()], 500);
+        }
+        break;
 
     default:
         sendJson(['error' => 'Invalid action endpoint'], 404);
         break;
 }
+
